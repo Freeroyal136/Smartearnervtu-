@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SmartEarner">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="auth-bg">
+  <div class="auth-card">
+    <div class="logo-wrap">
+      <div class="logo-icon">💡</div>
+      <h1>SmartEarner</h1>
+      <p>Create your account to get started</p>
+    </div>
+    <div class="input-group">
+      <span class="input-icon">👤</span>
+      <input type="text" id="name" placeholder="Full Name">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="email" placeholder="Email Address">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">📱</span>
+      <input type="tel" id="phone" placeholder="Phone Number">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="password" placeholder="Password (min 6 chars)">
+    </div>
+    <div id="regError" class="error-msg"></div>
+    <button class="btn-primary" id="regBtn" onclick="doRegister()">Create Account</button>
+    <a href="index.html" class="auth-link">Already have an account? <strong>Login</strong></a>
+  </div>
+</div>
+<script src="supabase.js"></script>
+<script>
+async function doRegister() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('regBtn');
+  const err = document.getElementById('regError');
+  err.textContent = '';
+
+  if (!name || !email || !phone || !password) { err.textContent = 'Please fill in all fields'; return; }
+  if (password.length < 6) { err.textContent = 'Password must be at least 6 characters'; return; }
+
+  btn.textContent = 'Creating account...'; btn.disabled = true;
+
+  try {
+    // Step 1: Sign up with Supabase Auth
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+
+    if (data.error || !data.user) {
+      err.textContent = data.error?.message || data.msg || 'Registration failed. Email may already be in use.';
+      btn.textContent = 'Create Account'; btn.disabled = false;
+      return;
+    }
+
+    const userId = data.user.id;
+    const token = data.access_token;
+
+    // Step 2: Save profile using the user's own token
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ id: userId, email, name, phone, balance: 0 })
+    });
+
+    // Step 3: Save session
+    localStorage.setItem('se_token', token);
+    localStorage.setItem('se_user', JSON.stringify(data.user));
+
+    window.location.href = 'dashboard.html';
+
+  } catch(e) {
+    err.textContent = 'Something went wrong. Please try again.';
+    btn.textContent = 'Create Account'; btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

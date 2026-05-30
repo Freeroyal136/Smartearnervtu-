@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <a href="dashboard.html" class="back-btn">← Back</a>
+    <div class="page-title">My Profile</div>
+    <div></div>
+  </div>
+</header>
+
+<main class="dash-main">
+
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profileAvatar">--</div>
+    <div class="profile-name" id="profileName">Loading...</div>
+    <div class="profile-email" id="profileEmail">--</div>
+  </div>
+
+  <div class="section-title">Account Information</div>
+  <div class="profile-card">
+    <div class="profile-row">
+      <div class="profile-row-label">Full Name</div>
+      <div class="profile-row-value" id="dispName">--</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-row-label">Email</div>
+      <div class="profile-row-value" id="dispEmail">--</div>
+    </div>
+    <div class="profile-row">
+      <div class="profile-row-label">Phone</div>
+      <div class="profile-row-value" id="dispPhone">--</div>
+    </div>
+  </div>
+
+  <div class="section-title">Edit Profile</div>
+  <div class="form-card" style="text-align:left">
+    <div class="input-group">
+      <span class="input-icon">👤</span>
+      <input type="text" id="editName" placeholder="Full Name">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">📱</span>
+      <input type="tel" id="editPhone" placeholder="Phone Number">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="editEmail" placeholder="Email Address">
+    </div>
+    <div id="editError" class="error-msg"></div>
+    <button class="btn-primary" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+  </div>
+
+  <div class="section-title">Change Password</div>
+  <div class="form-card" style="text-align:left">
+    <p style="color:#888;font-size:13px;margin-bottom:16px">Enter a new password to update it</p>
+    <div class="input-group">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="newPassword" placeholder="New Password (min 6 chars)">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+    </div>
+    <div id="passError" class="error-msg"></div>
+    <button class="btn-primary" id="passBtn" onclick="changePassword()">Update Password</button>
+  </div>
+
+  <div class="section-title">Account</div>
+  <div class="profile-card">
+    <div class="profile-action-row" onclick="supa.logout()">
+      <span>🚪</span>
+      <span>Logout</span>
+      <span style="color:#aaa">›</span>
+    </div>
+  </div>
+
+</main>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><span>🏠</span><span>Home</span></a>
+  <a href="products.html" class="nav-item"><span>🛍️</span><span>Products</span></a>
+  <a href="deposit.html" class="nav-item"><span>💰</span><span>Deposit</span></a>
+  <a href="profile.html" class="nav-item active"><span>👤</span><span>Profile</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="supabase.js"></script>
+<script>
+if (!supa.getToken()) window.location.href = 'index.html';
+
+let userId = null;
+let currentEmail = '';
+
+async function loadProfile() {
+  const user = supa.getUser();
+  if (!user) return supa.logout();
+  userId = user.id;
+  currentEmail = user.email;
+
+  try {
+    const profile = await supa.getProfile(userId);
+    const name = profile?.name || user.email;
+    const phone = profile?.phone || '';
+    const email = profile?.email || user.email;
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = email;
+    document.getElementById('dispName').textContent = name;
+    document.getElementById('dispEmail').textContent = email;
+    document.getElementById('dispPhone').textContent = phone || 'Not set';
+
+    document.getElementById('editName').value = name;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editEmail').value = email;
+    currentEmail = email;
+  } catch(e) {
+    showToast('❌ Could not load profile');
+  }
+}
+
+async function saveProfile() {
+  const name = document.getElementById('editName').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const err = document.getElementById('editError');
+  const btn = document.getElementById('saveBtn');
+  err.textContent = '';
+
+  if (!name) { err.textContent = 'Name cannot be empty'; return; }
+  if (!email) { err.textContent = 'Email cannot be empty'; return; }
+
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    // Update profile table
+    await supa.updateProfile(userId, { name, phone, email });
+
+    // If email changed, update auth too
+    if (email !== currentEmail) {
+      await supa.updateAuthEmail(email);
+      showToast('✅ Profile updated! Check new email for confirmation.');
+    } else {
+      showToast('✅ Profile updated successfully!');
+    }
+
+    // Refresh display
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    document.getElementById('profileAvatar').textContent = initials;
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = email;
+    document.getElementById('dispName').textContent = name;
+    document.getElementById('dispEmail').textContent = email;
+    document.getElementById('dispPhone').textContent = phone || 'Not set';
+    currentEmail = email;
+
+  } catch(e) {
+    err.textContent = 'Failed to update. Please try again.';
+  }
+
+  btn.textContent = 'Save Changes'; btn.disabled = false;
+}
+
+async function changePassword() {
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  const err = document.getElementById('passError');
+  const btn = document.getElementById('passBtn');
+  err.textContent = '';
+
+  if (!newPass) { err.textContent = 'Enter a new password'; return; }
+  if (newPass.length < 6) { err.textContent = 'Password must be at least 6 characters'; return; }
+  if (newPass !== confirmPass) { err.textContent = 'Passwords do not match'; return; }
+
+  btn.textContent = 'Updating...'; btn.disabled = true;
+
+  try {
+    await supa.updatePassword(newPass);
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    showToast('✅ Password updated successfully!');
+  } catch(e) {
+    err.textContent = e.message || 'Failed to update password. Try again.';
+  }
+
+  btn.textContent = 'Update Password'; btn.disabled = false;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+loadProfile();
+</script>
+</body>
+</html>

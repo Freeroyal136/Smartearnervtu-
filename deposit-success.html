@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Payment</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="auth-bg">
+  <div class="auth-card" style="text-align:center">
+    <div id="statusIcon" style="font-size:60px;margin-bottom:16px">⏳</div>
+    <h2 id="statusTitle">Processing Payment...</h2>
+    <p id="statusMsg" style="color:#888;margin-top:8px;font-size:14px">Please wait while we confirm your payment</p>
+    <div style="margin-top:24px">
+      <a href="dashboard.html" id="homeBtn" class="btn-primary" style="display:none;text-decoration:none;display:inline-block;padding:14px 32px;border-radius:12px">Go to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+async function handleSuccess() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  const amount = parseInt(params.get('amount'));
+  const uid = params.get('uid');
+
+  // Also check localStorage for pending deposit
+  const pending = JSON.parse(localStorage.getItem('pending_deposit') || '{}');
+
+  const userId = uid || pending.userId;
+  const depositAmount = amount || pending.amount;
+  const oldBalance = pending.balance || 0;
+
+  if (!userId || !depositAmount) {
+    document.getElementById('statusIcon').textContent = '❌';
+    document.getElementById('statusTitle').textContent = 'Something went wrong';
+    document.getElementById('statusMsg').textContent = 'Could not verify payment. Contact support.';
+    document.getElementById('homeBtn').style.display = 'inline-block';
+    return;
+  }
+
+  try {
+    const profile = await supa.getProfile(userId);
+    const newBalance = parseFloat(profile.balance) + depositAmount;
+    await supa.updateBalance(userId, newBalance);
+    await supa.addTransaction(userId, 'deposit', 'Wallet Deposit', depositAmount);
+    localStorage.removeItem('pending_deposit');
+
+    document.getElementById('statusIcon').textContent = '✅';
+    document.getElementById('statusTitle').textContent = 'Payment Successful!';
+    document.getElementById('statusMsg').textContent = '₦' + depositAmount.toLocaleString() + ' has been added to your wallet.';
+    document.getElementById('homeBtn').style.display = 'inline-block';
+
+    setTimeout(() => window.location.href = 'dashboard.html', 3000);
+  } catch(e) {
+    document.getElementById('statusIcon').textContent = '⚠️';
+    document.getElementById('statusTitle').textContent = 'Payment Received';
+    document.getElementById('statusMsg').textContent = 'Payment went through but balance update failed. Contact support with ref: ' + ref;
+    document.getElementById('homeBtn').style.display = 'inline-block';
+  }
+}
+
+handleSuccess();
+</script>
+</body>
+</html>

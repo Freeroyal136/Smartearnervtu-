@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Deposit</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <a href="dashboard.html" class="back-btn">← Back</a>
+    <div class="page-title">Deposit Funds</div>
+    <div></div>
+  </div>
+</header>
+
+<main class="dash-main">
+  <div class="form-card">
+    <div class="form-icon">💰</div>
+    <h3>Add Money</h3>
+    <p>Enter the amount you want to deposit</p>
+
+    <div class="amount-shortcuts">
+      <button class="shortcut" onclick="setAmount(1000, this)">₦1,000</button>
+      <button class="shortcut" onclick="setAmount(2000, this)">₦2,000</button>
+      <button class="shortcut" onclick="setAmount(5000, this)">₦5,000</button>
+      <button class="shortcut" onclick="setAmount(10000, this)">₦10,000</button>
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">₦</span>
+      <input type="number" id="depositAmount" placeholder="Enter amount" min="100">
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="depositEmail" placeholder="Your email address">
+    </div>
+
+    <button class="btn-primary" id="payBtn" onclick="startDeposit()">Pay with Paystack</button>
+    <p class="secure-note">🔒 Secured by Paystack</p>
+  </div>
+</main>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><span>🏠</span><span>Home</span></a>
+  <a href="products.html" class="nav-item"><span>🛍️</span><span>Products</span></a>
+  <a href="deposit.html" class="nav-item active"><span>💰</span><span>Deposit</span></a>
+  <a href="profile.html" class="nav-item"><span>👤</span><span>Profile</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Read user from localStorage directly — no supabase calls before payment
+const SUPABASE_URL = 'https://hovvgdptshfikguddsui.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdnZnZHB0c2hmaWtndWRkc3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODcwNzAsImV4cCI6MjA5NTQ2MzA3MH0.eYGiPOcaKDQhmEuMJmVJXVnfXx8rI2F4rBYNzMjHhFM';
+const PAYSTACK_PUBLIC_KEY = 'pk_live_ed92285d769797a638eee1216cf8181964e0fe87';
+
+const token = localStorage.getItem('se_token');
+const userRaw = localStorage.getItem('se_user');
+if (!token || !userRaw) window.location.href = 'index.html';
+
+const user = JSON.parse(userRaw);
+
+// Pre-fill email
+window.onload = function() {
+  if (user && user.email) {
+    document.getElementById('depositEmail').value = user.email;
+  }
+};
+
+function setAmount(val, btn) {
+  document.getElementById('depositAmount').value = val;
+  document.querySelectorAll('.shortcut').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function startDeposit() {
+  const amount = parseInt(document.getElementById('depositAmount').value);
+  const email = document.getElementById('depositEmail').value.trim();
+
+  if (!amount || amount < 100) { showToast('❌ Enter a valid amount (min ₦100)'); return; }
+  if (!email) { showToast('❌ Enter your email address'); return; }
+
+  // Open Paystack popup — no async calls before this
+  const handler = PaystackPop.setup({
+    key: PAYSTACK_PUBLIC_KEY,
+    email: email,
+    amount: amount * 100,
+    currency: 'NGN',
+    ref: 'SE_' + Date.now(),
+    callback: function(response) {
+      // Payment successful — now update balance
+      updateBalance(amount);
+    },
+    onClose: function() {
+      showToast('⚠️ Payment cancelled');
+    }
+  });
+
+  handler.openIframe();
+}
+
+async function updateBalance(amount) {
+  showToast('⏳ Updating your balance...');
+  try {
+    // Get current profile
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=balance`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await res.json();
+    const currentBalance = parseFloat(data[0]?.balance || 0);
+    const newBalance = currentBalance + amount;
+
+    // Update balance
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ balance: newBalance })
+    });
+
+    // Save transaction
+    await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        type: 'deposit',
+        description: 'Wallet Deposit',
+        amount: amount,
+        created_at: new Date().toISOString()
+      })
+    });
+
+    showToast('✅ ₦' + amount.toLocaleString() + ' added to your wallet!');
+    setTimeout(() => window.location.href = 'dashboard.html', 2500);
+  } catch(e) {
+    showToast('✅ Payment received! Go to dashboard to see balance.');
+    setTimeout(() => window.location.href = 'dashboard.html', 2500);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>

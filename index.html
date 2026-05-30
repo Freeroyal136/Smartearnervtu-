@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SmartEarner">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="auth-bg">
+  <div class="auth-card">
+    <div class="logo-wrap">
+      <div class="logo-icon">💡</div>
+      <h1>SmartEarner</h1>
+      <p>Welcome back! Sign in to your account</p>
+    </div>
+    <div class="input-group">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="email" placeholder="Email Address">
+    </div>
+    <div class="input-group">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="password" placeholder="Password">
+    </div>
+    <div id="loginError" class="error-msg"></div>
+    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Login</button>
+    <a href="register.html" class="auth-link">Don't have an account? <strong>Register</strong></a>
+  </div>
+</div>
+<script src="supabase.js"></script>
+<script>
+// Clear any existing session so login page always shows
+localStorage.removeItem('se_token');
+localStorage.removeItem('se_user');
+
+async function doLogin() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+
+  if (!email || !password) { err.textContent = 'Please fill in all fields'; return; }
+
+  btn.textContent = 'Logging in...'; btn.disabled = true;
+
+  try {
+    await supa.signIn(email, password);
+    window.location.href = 'dashboard.html';
+  } catch(e) {
+    err.textContent = e.error_description || e.message || 'Invalid email or password';
+    btn.textContent = 'Login'; btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

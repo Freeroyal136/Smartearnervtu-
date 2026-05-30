@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Withdraw</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <a href="dashboard.html" class="back-btn">← Back</a>
+    <div class="page-title">Withdraw</div>
+    <div></div>
+  </div>
+</header>
+
+<main class="dash-main">
+  <div class="balance-card" style="margin-bottom:20px">
+    <div class="balance-label">Available Balance</div>
+    <div class="balance-amount" id="balanceDisplay">Loading...</div>
+  </div>
+
+  <div class="form-card" style="text-align:left">
+    <div class="form-icon" style="text-align:center">🏦</div>
+    <h3 style="text-align:center">Withdraw Funds</h3>
+    <p style="text-align:center">Funds sent to your bank within 24hrs</p>
+
+    <div class="input-group">
+      <span class="input-icon">₦</span>
+      <input type="number" id="withdrawAmount" placeholder="Enter amount (min ₦500)">
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">🏦</span>
+      <select id="bankName" style="width:100%;border:none;background:transparent;font-family:Sora,sans-serif;font-size:15px;color:#333;outline:none;padding:14px 0">
+        <option value="">-- Select Bank --</option>
+        <option>Access Bank</option><option>First Bank</option>
+        <option>GTBank</option><option>Zenith Bank</option>
+        <option>UBA</option><option>Fidelity Bank</option>
+        <option>Union Bank</option><option>Polaris Bank</option>
+        <option>Stanbic IBTC</option><option>Sterling Bank</option>
+        <option>Wema Bank</option><option>Kuda Bank</option>
+        <option>Opay</option><option>Palmpay</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">🔢</span>
+      <input type="tel" id="accountNumber" placeholder="Account Number (10 digits)" maxlength="10">
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">👤</span>
+      <input type="text" id="accountName" placeholder="Account Name">
+    </div>
+
+    <button class="btn-primary" onclick="submitWithdrawal()">Request Withdrawal</button>
+    <p class="secure-note">⏱ Processed within 24 hours</p>
+  </div>
+</main>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-title">Confirm Withdrawal</div>
+    <div class="modal-body" id="confirmDetails"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('confirmModal').classList.remove('active')">Cancel</button>
+      <button class="btn-primary" onclick="finalizeWithdrawal()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><span>🏠</span><span>Home</span></a>
+  <a href="products.html" class="nav-item"><span>🛍️</span><span>Products</span></a>
+  <a href="deposit.html" class="nav-item"><span>💰</span><span>Deposit</span></a>
+  <a href="profile.html" class="nav-item"><span>👤</span><span>Profile</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="supabase.js"></script>
+<script>
+if (!supa.getToken()) window.location.href = 'index.html';
+
+let userProfile = null;
+
+async function loadBalance() {
+  const user = supa.getUser();
+  userProfile = await supa.getProfile(user.id);
+  document.getElementById('balanceDisplay').textContent = '₦' + parseFloat(userProfile.balance).toLocaleString('en-NG', {minimumFractionDigits:2});
+}
+loadBalance();
+
+let pendingAmount = 0;
+
+async function submitWithdrawal() {
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  const bank = document.getElementById('bankName').value;
+  const acctNum = document.getElementById('accountNumber').value;
+  const acctName = document.getElementById('accountName').value;
+
+  if (!amount || amount < 500) { showToast('❌ Minimum withdrawal is ₦500'); return; }
+  if (!bank) { showToast('❌ Select a bank'); return; }
+  if (acctNum.length !== 10) { showToast('❌ Enter a valid 10-digit account number'); return; }
+  if (!acctName) { showToast('❌ Enter account name'); return; }
+  if (amount > parseFloat(userProfile.balance)) { showToast('❌ Insufficient balance'); return; }
+
+  pendingAmount = amount;
+  document.getElementById('confirmDetails').innerHTML = `
+    <p>Amount: <strong>₦${amount.toLocaleString()}</strong></p>
+    <p>Bank: <strong>${bank}</strong></p>
+    <p>Account: <strong>${acctNum}</strong></p>
+    <p>Name: <strong>${acctName}</strong></p>
+  `;
+  document.getElementById('confirmModal').classList.add('active');
+}
+
+async function finalizeWithdrawal() {
+  document.getElementById('confirmModal').classList.remove('active');
+  try {
+    const user = supa.getUser();
+    const newBalance = parseFloat(userProfile.balance) - pendingAmount;
+    await supa.updateBalance(user.id, newBalance);
+    await supa.addTransaction(user.id, 'withdrawal', 'Bank Withdrawal', pendingAmount);
+    showToast('✅ Withdrawal request submitted!');
+    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+  } catch(e) {
+    showToast('❌ Failed to process withdrawal. Try again.');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
