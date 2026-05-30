@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SmartEarner">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <div class="logo-sm">💡 SmartEarner</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="notif-bell" id="notifBell" onclick="toggleNotif()">
+        🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span>
+      </div>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:8px;font-family:Sora,sans-serif;font-size:12px;cursor:pointer">Logout</button>
+      <div class="user-avatar" id="avatarInitials">--</div>
+    </div>
+  </div>
+</header>
+
+<!-- Notification Dropdown -->
+<div class="notif-dropdown" id="notifDropdown" style="display:none">
+  <div class="notif-header">
+    <span>Purchase Notifications</span>
+    <button onclick="clearNotifs()">Clear all</button>
+  </div>
+  <div id="notifList"><div class="notif-empty">No purchase notifications yet</div></div>
+</div>
+
+<main class="dash-main">
+
+  <div class="welcome-text">
+    <h2 id="welcomeName">Hello 👋</h2>
+    <p>What would you like to do today?</p>
+  </div>
+
+  <!-- Balance Card — always shown, updates from DB -->
+  <div class="balance-card">
+    <div class="balance-label">Available Balance</div>
+    <div class="balance-amount" id="balanceDisplay">Loading...</div>
+    <div class="balance-sub">Tap deposit to fund your wallet</div>
+  </div>
+
+  <div class="quick-actions">
+    <a href="deposit.html" class="action-card green">
+      <div class="action-icon">⬇️</div>
+      <div class="action-label">Deposit</div>
+    </a>
+    <a href="withdraw.html" class="action-card red">
+      <div class="action-icon">⬆️</div>
+      <div class="action-label">Withdraw</div>
+    </a>
+    <a href="products.html" class="action-card blue">
+      <div class="action-icon">🛍️</div>
+      <div class="action-label">Products</div>
+    </a>
+    <a href="withdraw.html" class="action-card purple">
+      <div class="action-icon">🏦</div>
+      <div class="action-label">Withdraw</div>
+    </a>
+  </div>
+
+  <div class="section-title">Recent Transactions</div>
+  <div class="txn-list" id="txnList">
+    <div style="text-align:center;color:#aaa;padding:20px;font-size:14px">Loading...</div>
+  </div>
+
+</main>
+
+<!-- Install Banner -->
+<div class="install-banner" id="installBanner">
+  <div class="install-banner-icon">💡</div>
+  <div class="install-banner-text">
+    <strong>Install SmartEarner</strong>
+    <span>Add to home screen for quick access</span>
+  </div>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="dismiss-btn" onclick="document.getElementById('installBanner').classList.remove('show')">✕</button>
+</div>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item active"><span>🏠</span><span>Home</span></a>
+  <a href="products.html" class="nav-item"><span>🛍️</span><span>Products</span></a>
+  <a href="deposit.html" class="nav-item"><span>💰</span><span>Deposit</span></a>
+  <a href="profile.html" class="nav-item"><span>👤</span><span>Profile</span></a>
+</nav>
+
+<script>
+const SUPABASE_URL = 'https://hovvgdptshfikguddsui.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvdnZnZHB0c2hmaWtndWRkc3VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODcwNzAsImV4cCI6MjA5NTQ2MzA3MH0.eYGiPOcaKDQhmEuMJmVJXVnfXx8rI2F4rBYNzMjHhFM';
+
+const token = localStorage.getItem('se_token');
+const userRaw = localStorage.getItem('se_user');
+if (!token || !userRaw) window.location.href = 'index.html';
+const user = JSON.parse(userRaw);
+
+function doLogout() {
+  localStorage.removeItem('se_token');
+  localStorage.removeItem('se_user');
+  window.location.href = 'index.html';
+}
+
+async function loadDashboard() {
+  try {
+    // Load profile
+    const profileRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    const profiles = await profileRes.json();
+    const profile = profiles[0];
+
+    if (!profile) {
+      document.getElementById('balanceDisplay').textContent = '₦0.00';
+      document.getElementById('welcomeName').textContent = 'Hello 👋';
+      document.getElementById('avatarInitials').textContent = 'U';
+    } else {
+      const name = profile.name || user.email;
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('welcomeName').textContent = `Hello, ${name.split(' ')[0]} 👋`;
+      document.getElementById('avatarInitials').textContent = initials;
+      document.getElementById('balanceDisplay').textContent = '₦' + parseFloat(profile.balance || 0).toLocaleString('en-NG', {minimumFractionDigits: 2});
+    }
+
+    // Load transactions
+    const txnRes = await fetch(`${SUPABASE_URL}/rest/v1/transactions?user_id=eq.${user.id}&order=created_at.desc&limit=20`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${token}` }
+    });
+    const txns = await txnRes.json();
+
+    // Render notifications — purchases only
+    const purchases = txns.filter(t => t.type === 'purchase');
+    const notifs = purchases.map(p => ({
+      id: p.id,
+      text: `✅ ${p.description} — ₦${parseFloat(p.amount).toLocaleString()}`,
+      time: p.created_at
+    }));
+    renderNotifs(notifs);
+
+    // Render transactions
+    const list = document.getElementById('txnList');
+    if (!txns || txns.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-size:14px">No transactions yet</div>';
+    } else {
+      list.innerHTML = txns.map(t => {
+        const isCredit = t.type === 'deposit';
+        const icon = t.type === 'deposit' ? 'dep' : t.type === 'withdrawal' ? 'wit' : 'pur';
+        const emoji = t.type === 'deposit' ? '⬇' : t.type === 'withdrawal' ? '⬆' : '🛍';
+        const date = new Date(t.created_at).toLocaleString('en-NG', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+        return `<div class="txn-item">
+          <div class="txn-icon ${icon}">${emoji}</div>
+          <div class="txn-info">
+            <div class="txn-name">${t.description}</div>
+            <div class="txn-date">${date}</div>
+          </div>
+          <div class="txn-amount ${isCredit ? 'green-text' : 'red-text'}">${isCredit ? '+' : '-'}₦${parseFloat(t.amount).toLocaleString()}</div>
+        </div>`;
+      }).join('');
+    }
+
+  } catch(e) {
+    document.getElementById('balanceDisplay').textContent = '₦0.00';
+    document.getElementById('txnList').innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-size:14px">Could not load data</div>';
+  }
+}
+
+function renderNotifs(notifs) {
+  const badge = document.getElementById('notifBadge');
+  const list = document.getElementById('notifList');
+  if (notifs.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = notifs.length;
+    list.innerHTML = notifs.map(n => `
+      <div class="notif-item">
+        <div class="notif-text">${n.text}</div>
+        <div class="notif-time">${new Date(n.time).toLocaleString('en-NG', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</div>
+      </div>`).join('');
+  } else {
+    badge.style.display = 'none';
+    list.innerHTML = '<div class="notif-empty">No purchase notifications yet</div>';
+  }
+}
+
+function toggleNotif() {
+  const d = document.getElementById('notifDropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+
+function clearNotifs() {
+  document.getElementById('notifDropdown').style.display = 'none';
+  document.getElementById('notifBadge').style.display = 'none';
+  document.getElementById('notifList').innerHTML = '<div class="notif-empty">No purchase notifications yet</div>';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#notifBell') && !e.target.closest('#notifDropdown')) {
+    document.getElementById('notifDropdown').style.display = 'none';
+  }
+});
+
+loadDashboard();
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('show');
+  }
+});
+</script>
+</body>
+</html>
