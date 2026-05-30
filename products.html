@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartEarner - Products</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0066ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar-inner">
+    <a href="dashboard.html" class="back-btn">← Back</a>
+    <div class="page-title">Products</div>
+    <div></div>
+  </div>
+</header>
+
+<main class="dash-main">
+
+  <div class="filter-tabs">
+    <button class="tab active" onclick="showCategory('data',this)">📶 Data</button>
+    <button class="tab" onclick="showCategory('airtime',this)">📞 Airtime</button>
+    <button class="tab" onclick="showCategory('tv',this)">📺 TV</button>
+    <button class="tab" onclick="showCategory('electricity',this)">💡 Electric</button>
+    <button class="tab" onclick="showCategory('education',this)">🎓 Edu</button>
+    <button class="tab" onclick="showCategory('betting',this)">🎰 Betting</button>
+  </div>
+
+  <!-- DATA -->
+  <div id="cat-data" class="category-section">
+    <p class="section-sub">Select Network</p>
+    <div class="network-row">
+      <div class="network-btn active" onclick="switchDataNetwork(this,'mtn','MTN')"><div class="net-circle" style="background:#ffcc00;color:#333">MTN</div><span>MTN</span></div>
+      <div class="network-btn" onclick="switchDataNetwork(this,'airtel','Airtel')"><div class="net-circle" style="background:#e0001a;color:#fff">AIR</div><span>Airtel</span></div>
+      <div class="network-btn" onclick="switchDataNetwork(this,'glo','Glo')"><div class="net-circle" style="background:#009900;color:#fff">GLO</div><span>Glo</span></div>
+      <div class="network-btn" onclick="switchDataNetwork(this,'9mobile','9mobile')"><div class="net-circle" style="background:#006633;color:#fff">9MB</div><span>9mobile</span></div>
+    </div>
+    <div class="net-plans" id="plans-mtn">
+      <p class="section-sub" style="margin-top:16px">MTN Data Plans</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-100mb',100,'MTN 100MB')"><div class="plan-size">100MB</div><div class="plan-validity">1 day</div><div class="plan-price">₦100</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-500mb',350,'MTN 500MB')"><div class="plan-size">500MB</div><div class="plan-validity">14 days</div><div class="plan-price">₦350</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-1gb',500,'MTN 1GB')"><div class="plan-size">1GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦500</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-2gb',1000,'MTN 2GB')"><div class="plan-size">2GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦1,000</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-5gb',2500,'MTN 5GB')"><div class="plan-size">5GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦2,500</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-10gb',4500,'MTN 10GB')"><div class="plan-size">10GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦4,500</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-20gb',8000,'MTN 20GB')"><div class="plan-size">20GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦8,000</div></div>
+        <div class="plan-card" onclick="openDataModal('MTN','mtn-50gb',17000,'MTN 50GB')"><div class="plan-size">50GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦17,000</div></div>
+      </div>
+    </div>
+    <div class="net-plans" id="plans-airtel" style="display:none">
+      <p class="section-sub" style="margin-top:16px">Airtel Data Plans</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openDataModal('Airtel','airtel-100mb',100,'Airtel 100MB')"><div class="plan-size">100MB</div><div class="plan-validity">1 day</div><div class="plan-price">₦100</div></div>
+        <div class="plan-card" onclick="openDataModal('Airtel','airtel-1gb',500,'Airtel 1GB')"><div class="plan-size">1GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦500</div></div>
+        <div class="plan-card" onclick="openDataModal('Airtel','airtel-2gb',1000,'Airtel 2GB')"><div class="plan-size">2GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦1,000</div></div>
+        <div class="plan-card" onclick="openDataModal('Airtel','airtel-5gb',2000,'Airtel 5GB')"><div class="plan-size">5GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦2,000</div></div>
+        <div class="plan-card" onclick="openDataModal('Airtel','airtel-10gb',3500,'Airtel 10GB')"><div class="plan-size">10GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦3,500</div></div>
+      </div>
+    </div>
+    <div class="net-plans" id="plans-glo" style="display:none">
+      <p class="section-sub" style="margin-top:16px">Glo Data Plans</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openDataModal('Glo','glo-1gb',300,'Glo 1GB')"><div class="plan-size">1GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦300</div></div>
+        <div class="plan-card" onclick="openDataModal('Glo','glo-2gb',500,'Glo 2GB')"><div class="plan-size">2GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦500</div></div>
+        <div class="plan-card" onclick="openDataModal('Glo','glo-5gb',1500,'Glo 5GB')"><div class="plan-size">5GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦1,500</div></div>
+        <div class="plan-card" onclick="openDataModal('Glo','glo-10gb',2500,'Glo 10GB')"><div class="plan-size">10GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦2,500</div></div>
+      </div>
+    </div>
+    <div class="net-plans" id="plans-9mobile" style="display:none">
+      <p class="section-sub" style="margin-top:16px">9mobile Data Plans</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openDataModal('9mobile','9mobile-1gb',500,'9mobile 1GB')"><div class="plan-size">1GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦500</div></div>
+        <div class="plan-card" onclick="openDataModal('9mobile','9mobile-4gb',2000,'9mobile 4.5GB')"><div class="plan-size">4.5GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦2,000</div></div>
+        <div class="plan-card" onclick="openDataModal('9mobile','9mobile-11gb',4000,'9mobile 11GB')"><div class="plan-size">11GB</div><div class="plan-validity">30 days</div><div class="plan-price">₦4,000</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AIRTIME -->
+  <div id="cat-airtime" class="category-section" style="display:none">
+    <p class="section-sub">Select Network</p>
+    <div class="network-row">
+      <div class="network-btn active" onclick="selectNetwork(this)"><div class="net-circle" style="background:#ffcc00;color:#333">MTN</div><span>MTN</span></div>
+      <div class="network-btn" onclick="selectNetwork(this)"><div class="net-circle" style="background:#e0001a;color:#fff">AIR</div><span>Airtel</span></div>
+      <div class="network-btn" onclick="selectNetwork(this)"><div class="net-circle" style="background:#009900;color:#fff">GLO</div><span>Glo</span></div>
+      <div class="network-btn" onclick="selectNetwork(this)"><div class="net-circle" style="background:#006633;color:#fff">9MB</div><span>9mobile</span></div>
+    </div>
+    <div class="form-card" style="margin-top:18px;text-align:left">
+      <div class="input-group"><span class="input-icon">📱</span><input type="tel" id="airtimePhone" placeholder="Recipient Phone Number"></div>
+      <div class="amount-shortcuts" style="margin:14px 0 0">
+        <button class="shortcut" onclick="setVal('airtimeAmt',50)">₦50</button>
+        <button class="shortcut" onclick="setVal('airtimeAmt',100)">₦100</button>
+        <button class="shortcut" onclick="setVal('airtimeAmt',200)">₦200</button>
+        <button class="shortcut" onclick="setVal('airtimeAmt',500)">₦500</button>
+        <button class="shortcut" onclick="setVal('airtimeAmt',1000)">₦1,000</button>
+      </div>
+      <div class="input-group" style="margin-top:12px"><span class="input-icon">₦</span><input type="number" id="airtimeAmt" placeholder="Or enter custom amount"></div>
+      <button class="btn-primary" onclick="buyAirtime()">Buy Airtime</button>
+    </div>
+  </div>
+
+  <!-- TV -->
+  <div id="cat-tv" class="category-section" style="display:none">
+    <p class="section-sub">Select Provider</p>
+    <div class="network-row">
+      <div class="network-btn active" onclick="switchTV(this,'dstv','DSTV')"><div class="net-circle" style="background:#0066cc;color:#fff;font-size:11px">DSTV</div><span>DSTV</span></div>
+      <div class="network-btn" onclick="switchTV(this,'gotv','GOTV')"><div class="net-circle" style="background:#f90;color:#fff;font-size:11px">GOTV</div><span>GOTV</span></div>
+      <div class="network-btn" onclick="switchTV(this,'startimes','Startimes')"><div class="net-circle" style="background:#cc0000;color:#fff;font-size:10px">STAR</div><span>Startimes</span></div>
+    </div>
+    <div id="tv-dstv">
+      <p class="section-sub" style="margin-top:16px">DSTV Packages</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openTVModal('DSTV','padi',2950,'DSTV Padi')"><div class="plan-size" style="font-size:14px">Padi</div><div class="plan-validity">Monthly</div><div class="plan-price">₦2,950</div></div>
+        <div class="plan-card" onclick="openTVModal('DSTV','yanga',4150,'DSTV Yanga')"><div class="plan-size" style="font-size:14px">Yanga</div><div class="plan-validity">Monthly</div><div class="plan-price">₦4,150</div></div>
+        <div class="plan-card" onclick="openTVModal('DSTV','confam',9000,'DSTV Confam')"><div class="plan-size" style="font-size:14px">Confam</div><div class="plan-validity">Monthly</div><div class="plan-price">₦9,000</div></div>
+        <div class="plan-card" onclick="openTVModal('DSTV','compact',15700,'DSTV Compact')"><div class="plan-size" style="font-size:14px">Compact</div><div class="plan-validity">Monthly</div><div class="plan-price">₦15,700</div></div>
+        <div class="plan-card" onclick="openTVModal('DSTV','premium',37000,'DSTV Premium')"><div class="plan-size" style="font-size:14px">Premium</div><div class="plan-validity">Monthly</div><div class="plan-price">₦37,000</div></div>
+      </div>
+    </div>
+    <div id="tv-gotv" style="display:none">
+      <p class="section-sub" style="margin-top:16px">GOTV Packages</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openTVModal('GOTV','smallie',1575,'GOTV Smallie')"><div class="plan-size" style="font-size:13px">Smallie</div><div class="plan-validity">Monthly</div><div class="plan-price">₦1,575</div></div>
+        <div class="plan-card" onclick="openTVModal('GOTV','jinja',2460,'GOTV Jinja')"><div class="plan-size" style="font-size:14px">Jinja</div><div class="plan-validity">Monthly</div><div class="plan-price">₦2,460</div></div>
+        <div class="plan-card" onclick="openTVModal('GOTV','jolli',4085,'GOTV Jolli')"><div class="plan-size" style="font-size:14px">Jolli</div><div class="plan-validity">Monthly</div><div class="plan-price">₦4,085</div></div>
+        <div class="plan-card" onclick="openTVModal('GOTV','max',7600,'GOTV Max')"><div class="plan-size" style="font-size:14px">Max</div><div class="plan-validity">Monthly</div><div class="plan-price">₦7,600</div></div>
+        <div class="plan-card" onclick="openTVModal('GOTV','supa',10780,'GOTV Supa')"><div class="plan-size" style="font-size:14px">Supa</div><div class="plan-validity">Monthly</div><div class="plan-price">₦10,780</div></div>
+      </div>
+    </div>
+    <div id="tv-startimes" style="display:none">
+      <p class="section-sub" style="margin-top:16px">Startimes Packages</p>
+      <div class="plans-grid">
+        <div class="plan-card" onclick="openTVModal('Startimes','nova',900,'Startimes Nova')"><div class="plan-size" style="font-size:14px">Nova</div><div class="plan-validity">Monthly</div><div class="plan-price">₦900</div></div>
+        <div class="plan-card" onclick="openTVModal('Startimes','basic',1700,'Startimes Basic')"><div class="plan-size" style="font-size:14px">Basic</div><div class="plan-validity">Monthly</div><div class="plan-price">₦1,700</div></div>
+        <div class="plan-card" onclick="openTVModal('Startimes','smart',2200,'Startimes Smart')"><div class="plan-size" style="font-size:14px">Smart</div><div class="plan-validity">Monthly</div><div class="plan-price">₦2,200</div></div>
+        <div class="plan-card" onclick="openTVModal('Startimes','super',4200,'Startimes Super')"><div class="plan-size" style="font-size:14px">Super</div><div class="plan-validity">Monthly</div><div class="plan-price">₦4,200</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ELECTRICITY -->
+  <div id="cat-electricity" class="category-section" style="display:none">
+    <p class="section-sub">Select Disco</p>
+    <div class="disco-list" id="discoList">
+      <div class="disco-item active" onclick="selectDisco(this,'EKEDC')">⚡ EKEDC — Eko Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'IKEDC')">⚡ IKEDC — Ikeja Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'AEDC')">⚡ AEDC — Abuja Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'PHED')">⚡ PHED — Port Harcourt</div>
+      <div class="disco-item" onclick="selectDisco(this,'IBEDC')">⚡ IBEDC — Ibadan Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'EEDC')">⚡ EEDC — Enugu Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'KAEDCO')">⚡ KAEDCO — Kaduna Electric</div>
+      <div class="disco-item" onclick="selectDisco(this,'BEDC')">⚡ BEDC — Benin Electric</div>
+    </div>
+    <div class="form-card" style="margin-top:16px;text-align:left">
+      <div class="input-group"><span class="input-icon">🔢</span><input type="tel" id="meterNumber" placeholder="Meter Number"></div>
+      <div class="input-group"><span class="input-icon">📱</span><input type="tel" id="elecPhone" placeholder="Phone Number"></div>
+      <div class="input-group" style="margin-top:4px">
+        <span class="input-icon">🔌</span>
+        <select id="meterType" style="width:100%;border:none;background:transparent;font-family:Sora,sans-serif;font-size:15px;color:#333;outline:none;padding:14px 0">
+          <option value="prepaid">Prepaid</option>
+          <option value="postpaid">Postpaid</option>
+        </select>
+      </div>
+      <div class="amount-shortcuts" style="margin:14px 0 0">
+        <button class="shortcut" onclick="setVal('elecAmt',1000)">₦1,000</button>
+        <button class="shortcut" onclick="setVal('elecAmt',2000)">₦2,000</button>
+        <button class="shortcut" onclick="setVal('elecAmt',5000)">₦5,000</button>
+        <button class="shortcut" onclick="setVal('elecAmt',10000)">₦10,000</button>
+      </div>
+      <div class="input-group" style="margin-top:12px"><span class="input-icon">₦</span><input type="number" id="elecAmt" placeholder="Enter amount"></div>
+      <button class="btn-primary" onclick="buyElectricity()">Buy Token</button>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div id="cat-education" class="category-section" style="display:none">
+    <p class="section-sub">Select Service</p>
+    <div class="plans-grid">
+      <div class="plan-card" onclick="openEduModal('WAEC',4200)"><div class="plan-size" style="font-size:13px">WAEC</div><div class="plan-validity">Result Checker</div><div class="plan-price">₦4,200</div></div>
+      <div class="plan-card" onclick="openEduModal('NECO',1000)"><div class="plan-size" style="font-size:13px">NECO</div><div class="plan-validity">Result Checker</div><div class="plan-price">₦1,000</div></div>
+      <div class="plan-card" onclick="openEduModal('JAMB',700)"><div class="plan-size" style="font-size:13px">JAMB</div><div class="plan-validity">UTME PIN</div><div class="plan-price">₦700</div></div>
+    </div>
+  </div>
+
+  <!-- BETTING -->
+  <div id="cat-betting" class="category-section" style="display:none">
+    <p class="section-sub">Fund Betting Wallet</p>
+    <div class="disco-list" style="margin-bottom:16px">
+      <div class="disco-item active" onclick="selectDisco(this,'Bet9ja')">🎯 Bet9ja</div>
+      <div class="disco-item" onclick="selectDisco(this,'SportyBet')">🎯 SportyBet</div>
+      <div class="disco-item" onclick="selectDisco(this,'1xBet')">🎯 1xBet</div>
+      <div class="disco-item" onclick="selectDisco(this,'BetKing')">🎯 BetKing</div>
+      <div class="disco-item" onclick="selectDisco(this,'NairaBet')">🎯 NairaBet</div>
+    </div>
+    <div class="form-card" style="text-align:left">
+      <div class="input-group"><span class="input-icon">🆔</span><input type="text" id="bettingId" placeholder="Betting Account ID"></div>
+      <div class="amount-shortcuts" style="margin:14px 0 0">
+        <button class="shortcut" onclick="setVal('bettingAmt',500)">₦500</button>
+        <button class="shortcut" onclick="setVal('bettingAmt',1000)">₦1,000</button>
+        <button class="shortcut" onclick="setVal('bettingAmt',2000)">₦2,000</button>
+        <button class="shortcut" onclick="setVal('bettingAmt',5000)">₦5,000</button>
+      </div>
+      <div class="input-group" style="margin-top:12px"><span class="input-icon">₦</span><input type="number" id="bettingAmt" placeholder="Enter amount"></div>
+      <button class="btn-primary" onclick="openBuyModal('Betting Wallet Funding', document.getElementById('bettingAmt').value)">Fund Wallet</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Generic Modal -->
+<div class="modal-overlay" id="buyModal">
+  <div class="modal-card">
+    <div class="modal-title" id="modalTitle">Confirm Purchase</div>
+    <div class="modal-body">
+      <p>Product: <strong id="modalProduct"></strong></p>
+      <p>Amount: <strong id="modalAmount"></strong></p>
+      <div id="modalExtraFields"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="confirmBuyBtn" onclick="confirmBuy()">Confirm & Pay</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" class="nav-item"><span>🏠</span><span>Home</span></a>
+  <a href="products.html" class="nav-item active"><span>🛍️</span><span>Products</span></a>
+  <a href="deposit.html" class="nav-item"><span>💰</span><span>Deposit</span></a>
+  <a href="profile.html" class="nav-item"><span>👤</span><span>Profile</span></a>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL = 'https://smartearner.onrender.com';
+const token = localStorage.getItem('se_token');
+const userRaw = localStorage.getItem('se_user');
+if (!token || !userRaw) window.location.href = 'index.html';
+
+let pendingAction = null;
+let selectedDisco = 'EKEDC';
+let selectedNetwork = 'MTN';
+let selectedTV = 'DSTV';
+
+function showCategory(cat, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.category-section').forEach(s => s.style.display = 'none');
+  document.getElementById('cat-' + cat).style.display = 'block';
+}
+function switchDataNetwork(el, net, name) {
+  el.closest('.network-row').querySelectorAll('.network-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.net-plans').forEach(p => p.style.display = 'none');
+  document.getElementById('plans-' + net).style.display = 'block';
+  selectedNetwork = name;
+}
+function switchTV(el, provider, name) {
+  el.closest('.network-row').querySelectorAll('.network-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  ['dstv','gotv','startimes'].forEach(p => document.getElementById('tv-'+p).style.display = 'none');
+  document.getElementById('tv-' + provider).style.display = 'block';
+  selectedTV = name;
+}
+function selectNetwork(el) {
+  el.closest('.network-row').querySelectorAll('.network-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedNetwork = el.querySelector('span:last-child').textContent;
+}
+function selectDisco(el, name) {
+  el.closest('.disco-list').querySelectorAll('.disco-item').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  selectedDisco = name;
+}
+function setVal(id, val) { document.getElementById(id).value = val; }
+
+// Airtime
+function buyAirtime() {
+  const phone = document.getElementById('airtimePhone').value.trim();
+  const amount = parseInt(document.getElementById('airtimeAmt').value);
+  if (!phone) { showToast('❌ Enter phone number'); return; }
+  if (!amount || amount < 50) { showToast('❌ Enter valid amount (min ₦50)'); return; }
+  pendingAction = { type: 'airtime', network: selectedNetwork, phone, amount };
+  document.getElementById('modalTitle').textContent = 'Confirm Airtime';
+  document.getElementById('modalProduct').textContent = `${selectedNetwork} Airtime → ${phone}`;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = '';
+  document.getElementById('buyModal').classList.add('active');
+}
+
+// Data
+function openDataModal(network, variation_code, amount, name) {
+  document.getElementById('modalTitle').textContent = 'Confirm Data Purchase';
+  document.getElementById('modalProduct').textContent = name;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = `
+    <div class="input-group" style="margin-top:16px">
+      <span class="input-icon">📱</span>
+      <input type="tel" id="dataPhone" placeholder="Phone Number">
+    </div>`;
+  pendingAction = { type: 'data', network, variation_code, amount, name };
+  document.getElementById('buyModal').classList.add('active');
+}
+
+// TV
+function openTVModal(provider, variation_code, amount, name) {
+  document.getElementById('modalTitle').textContent = 'Confirm TV Subscription';
+  document.getElementById('modalProduct').textContent = name;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = `
+    <div class="input-group" style="margin-top:16px">
+      <span class="input-icon">📺</span>
+      <input type="tel" id="smartcardNo" placeholder="Smartcard / IUC Number">
+    </div>`;
+  pendingAction = { type: 'tv', provider, variation_code, amount, name };
+  document.getElementById('buyModal').classList.add('active');
+}
+
+// Electricity
+function buyElectricity() {
+  const meter = document.getElementById('meterNumber').value.trim();
+  const phone = document.getElementById('elecPhone').value.trim();
+  const meter_type = document.getElementById('meterType').value;
+  const amount = parseInt(document.getElementById('elecAmt').value);
+  if (!meter) { showToast('❌ Enter meter number'); return; }
+  if (!phone) { showToast('❌ Enter phone number'); return; }
+  if (!amount || amount < 1000) { showToast('❌ Minimum electricity purchase is ₦1,000'); return; }
+  pendingAction = { type: 'electricity', disco: selectedDisco, meter, phone, meter_type, amount };
+  document.getElementById('modalTitle').textContent = 'Confirm Electricity';
+  document.getElementById('modalProduct').textContent = `${selectedDisco} - Meter: ${meter}`;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = '';
+  document.getElementById('buyModal').classList.add('active');
+}
+
+// Education
+function openEduModal(service, amount) {
+  document.getElementById('modalTitle').textContent = 'Confirm Education PIN';
+  document.getElementById('modalProduct').textContent = `${service} PIN`;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = `
+    <div class="input-group" style="margin-top:16px">
+      <span class="input-icon">📱</span>
+      <input type="tel" id="eduPhone" placeholder="Phone Number">
+    </div>`;
+  pendingAction = { type: 'education', service, amount };
+  document.getElementById('buyModal').classList.add('active');
+}
+
+// Generic modal
+function openBuyModal(name, amount) {
+  amount = parseFloat(amount);
+  if (!amount || amount <= 0) { showToast('❌ Enter a valid amount'); return; }
+  pendingAction = { type: 'generic', name, amount };
+  document.getElementById('modalTitle').textContent = 'Confirm Purchase';
+  document.getElementById('modalProduct').textContent = name;
+  document.getElementById('modalAmount').textContent = '₦' + amount.toLocaleString();
+  document.getElementById('modalExtraFields').innerHTML = '';
+  document.getElementById('buyModal').classList.add('active');
+}
+
+function closeModal() { document.getElementById('buyModal').classList.remove('active'); }
+
+async function confirmBuy() {
+  if (!pendingAction) return;
+  const btn = document.getElementById('confirmBuyBtn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+
+  try {
+    let endpoint = '';
+    let body = {};
+
+    if (pendingAction.type === 'airtime') {
+      endpoint = '/api/airtime';
+      body = { network: pendingAction.network, phone: pendingAction.phone, amount: pendingAction.amount };
+
+    } else if (pendingAction.type === 'data') {
+      const phone = document.getElementById('dataPhone')?.value.trim();
+      if (!phone) { showToast('❌ Enter phone number'); btn.textContent = 'Confirm & Pay'; btn.disabled = false; return; }
+      endpoint = '/api/data';
+      body = { network: pendingAction.network, phone, amount: pendingAction.amount, variation_code: pendingAction.variation_code };
+
+    } else if (pendingAction.type === 'tv') {
+      const smartcard = document.getElementById('smartcardNo')?.value.trim();
+      if (!smartcard) { showToast('❌ Enter smartcard number'); btn.textContent = 'Confirm & Pay'; btn.disabled = false; return; }
+      endpoint = '/api/tv';
+      body = { provider: pendingAction.provider, smartcard, variation_code: pendingAction.variation_code, amount: pendingAction.amount };
+
+    } else if (pendingAction.type === 'electricity') {
+      endpoint = '/api/electricity';
+      body = { disco: pendingAction.disco, meter: pendingAction.meter, phone: pendingAction.phone, meter_type: pendingAction.meter_type, amount: pendingAction.amount };
+
+    } else if (pendingAction.type === 'education') {
+      const phone = document.getElementById('eduPhone')?.value.trim();
+      if (!phone) { showToast('❌ Enter phone number'); btn.textContent = 'Confirm & Pay'; btn.disabled = false; return; }
+      endpoint = '/api/education';
+      body = { service: pendingAction.service, amount: pendingAction.amount, phone };
+
+    } else {
+      showToast('❌ Service not available yet');
+      closeModal(); btn.textContent = 'Confirm & Pay'; btn.disabled = false; return;
+    }
+
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      closeModal();
+      showToast('✅ ' + data.message);
+    } else {
+      showToast('❌ ' + (data.error || 'Transaction failed'));
+    }
+
+  } catch(e) {
+    showToast('❌ Network error. Try again.');
+  }
+
+  btn.textContent = 'Confirm & Pay'; btn.disabled = false;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
